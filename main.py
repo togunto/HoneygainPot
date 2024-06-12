@@ -46,18 +46,23 @@ if os.getenv('GITHUB_ACTIONS') == 'true':
     original_url = f'https://api.github.com/repos/{ORIGINAL_REPO}/commits?path=main.py'
     user_response = requests.get(user_url, timeout=10000)
     original_response = requests.get(original_url, timeout=10000)
-    if user_response.status_code == 200 and original_response.status_code == 200:
-        user_commit = user_response.json()[0]['sha']
-        original_commit = original_response.json()[0]['sha']
+if user_response.status_code == 200 and original_response.status_code == 200:
+    user_commit_data = user_response.json()
+    original_commit_data = original_response.json()
+    
+    if user_commit_data and original_commit_data:  # 檢查列表是否為空
+        user_commit = user_commit_data[0]['sha']
+        original_commit = original_commit_data[0]['sha']
         if user_commit == original_commit:
             print(f"{colors.OKGREEN}Your repo is up-to-date with the original repo{colors.ENDC}")
         else:
             print(f"{colors.WARNING}Your repo is not up-to-date with the original repo{colors.ENDC}")
             print(f"{colors.FAIL}Please update your repo to the latest commit{colors.ENDC}{colors.FAIL}to get new updates and bug fixes{colors.ENDC}")
     else:
-        print(f"{colors.FAIL}❌ Error code 4: Failed to fetch commit information{colors.ENDC}")
+        print(f"{colors.FAIL}❌ Error code 4: No commits found in the responses{colors.ENDC}")
 else:
-    print(f"{colors.FAIL}Run with GitHub Actions: No{colors.ENDC}")
+    print(f"{colors.FAIL}❌ Error code 4: Failed to fetch commit information{colors.ENDC}")
+
 is_jwt = config.get('User', 'IsJWT', fallback='0')
 if is_jwt == '1' or os.getenv('IsJWT') == '1':
     print(f"{colors.OKGREEN}Using JWT Token: Yes{colors.ENDC}")
